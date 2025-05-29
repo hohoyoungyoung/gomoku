@@ -1,7 +1,7 @@
 meta = {
     "addr": "https://github.com/hohoyoungyoung",
     "name": "hohohohoho",
-    "description": "호호호호호호",
+    "description": "호호호호호호영",
 }
 
 def get_move(board):
@@ -79,12 +79,18 @@ def get_move(board):
         moves = []
         for r in range(SIZE):
             for c in range(SIZE):
-                if is_valid(r, c, b) and any(
-                    0 <= r + dr < SIZE and 0 <= c + dc < SIZE and b[r + dr][c + dc] != 0
-                    for dr in [-2, -1, 0, 1, 2] for dc in [-2, -1, 0, 1, 2]
-                ):
-                    s = score_point(r, c, ME, b)
-                    moves.append(((r, c), s))
+                if is_valid(r, c, b):
+                    # 주변에 돌이 하나라도 있는 칸 + 점수 계산
+                    has_neighbor = any(
+                        0 <= r + dr < SIZE and 0 <= c + dc < SIZE and b[r + dr][c + dc] != 0
+                        for dr in [-2, -1, 0, 1, 2] for dc in [-2, -1, 0, 1, 2]
+                    )
+                    if has_neighbor or (r, c) == (CENTER, CENTER):
+                        s = score_point(r, c, ME, b)
+                        moves.append(((r, c), s))
+        # 후보가 너무 적을 경우 대비
+        if not moves:
+            moves = [((r, c), 0) for r in range(SIZE) for c in range(SIZE) if b[r][c] == 0]
         return [move for move, _ in sorted(moves, key=lambda x: -x[1])][:20]  # top 20 moves
 
     def alphabeta(b, depth, alpha, beta, maximizing):
@@ -125,7 +131,7 @@ def get_move(board):
 
     def score_move(r, c):
         b_copy = copy.deepcopy(board)
-        if not is_valid(r, c, b_copy): return -float('inf')
+        if not is_valid(r, c, b_copy): return -100000  # 너무 낮지 않게 설정
         b_copy[r][c] = ME
         return alphabeta(b_copy, 4, -float('inf'), float('inf'), False)
 
